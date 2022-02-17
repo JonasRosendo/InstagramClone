@@ -29,6 +29,7 @@ class InstagramViewModel @Inject constructor(
     val popupNotification: State<Event<String>?> = _popupNotification
 
     init {
+        firebaseAuth.signOut()
         val currentUser = firebaseAuth.currentUser
         _signedIn.value = currentUser != null
         currentUser?.uid?.let { uid ->
@@ -37,6 +38,11 @@ class InstagramViewModel @Inject constructor(
     }
 
     fun signUp(username: String, email: String, password: String) {
+        if (username.isEmpty() or email.isEmpty() or password.isEmpty()) {
+            handleException(message = "Fill in all fields")
+            return
+        }
+
         _inProgress.value = true
 
         firebaseStore.collection(USERS).whereEqualTo(USERNAME, username).get()
@@ -64,6 +70,32 @@ class InstagramViewModel @Inject constructor(
             }
             .addOnFailureListener {
 
+            }
+    }
+
+    fun signIn(email: String, password: String) {
+        if (email.isEmpty() or password.isEmpty()) {
+            handleException(message = "Fill in all fields")
+            return
+        }
+
+        _inProgress.value = true
+
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    _signedIn.value = true
+                    _inProgress.value = false
+                    firebaseAuth.currentUser?.uid?.let { uid ->
+                        getUserData(uid)
+                    }
+                } else {
+                    handleException(task.exception, "Sign in failed")
+                    _inProgress.value = false
+                }
+            }.addOnFailureListener {
+                handleException(it, "Login failed")
+                _inProgress.value = false
             }
     }
 

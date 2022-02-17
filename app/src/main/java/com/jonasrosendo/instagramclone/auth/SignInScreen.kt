@@ -83,9 +83,13 @@ fun SignInScreen(navController: NavController, viewModel: InstagramViewModel) {
 
             Button(
                 onClick = {
-                          focus.clearFocus(force = true)
+                    focus.clearFocus(force = true)
+                    viewModel.signIn(
+                        email = emailState.value.text,
+                        password = passwordState.value.text
+                    )
                 },
-                modifier =  modifier
+                modifier = modifier
             ) {
                 Text(
                     text = "Sign In",
