@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
 import com.jonasrosendo.instagramclone.Constants.USERNAME
 import com.jonasrosendo.instagramclone.Constants.USERS
@@ -15,9 +16,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InstagramViewModel @Inject constructor(
-    val firebaseAuth: FirebaseAuth,
-    val firebaseStore: FirebaseFirestore,
-    val firebaseStorage: FirebaseStorage
+    private val firebaseAuth: FirebaseAuth,
+    private val firebaseStore: FirebaseFirestore,
+    private val firebaseStorage: FirebaseStorage
 ) : ViewModel() {
 
     private val _signedIn = mutableStateOf(false)
@@ -25,6 +26,14 @@ class InstagramViewModel @Inject constructor(
     private val user = mutableStateOf<User?>(null)
     private val _popupNotification = mutableStateOf<Event<String>?>(null)
     val popupNotification: State<Event<String>?> = _popupNotification
+
+    init {
+        val currentUser = firebaseAuth.currentUser
+        _signedIn.value = currentUser != null
+        currentUser?.uid?.let { uid ->
+            getUserData(uid)
+        }
+    }
 
     fun signUp(username: String, email: String, password: String) {
         _inProgress.value = true
@@ -40,6 +49,7 @@ class InstagramViewModel @Inject constructor(
                     ).addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             _signedIn.value = true
+                            createOrUpdateProfile(username = username)
                         } else {
                             handleException(
                                 exception = task.exception,
@@ -53,6 +63,58 @@ class InstagramViewModel @Inject constructor(
             }
             .addOnFailureListener {
 
+            }
+    }
+
+    private fun createOrUpdateProfile(
+        name: String? = null,
+        username: String? = null,
+        bio: String? = null,
+        imageUrl: String? = null,
+    ) {
+        val uid = firebaseAuth.currentUser?.uid
+        val currentUser = User(
+            userId = uid,
+            name = name ?: user.value?.name,
+            username = username ?: user.value?.username,
+            imageUrl = imageUrl ?: user.value?.imageUrl,
+            bio = bio ?: user.value?.bio,
+            following = user.value?.following
+        )
+
+        uid?.let {
+            _inProgress.value = true
+            firebaseStore.collection(USERS).document(it).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        document.reference.update(currentUser.toMap())
+                            .addOnSuccessListener {
+                                user.value = currentUser
+                            }.addOnFailureListener { exception ->
+                                handleException(exception, "Cannot update user")
+                                _inProgress.value = false
+                            }
+                    } else {
+                        firebaseStore.collection(USERS).document(uid).set(currentUser)
+                        getUserData(uid)
+                    }
+                }.addOnFailureListener { exception ->
+                    handleException(exception, "Cannot create user")
+                    _inProgress.value = false
+                }
+        }
+    }
+
+    private fun getUserData(uid: String) {
+        _inProgress.value = true
+        firebaseStore.collection(USERS).document(uid).get()
+            .addOnSuccessListener { document ->
+                val user = document.toObject<User>()
+                this.user.value = user
+                _inProgress.value = false
+                _popupNotification.value = Event("User data retrieved sucessfully")
+            }.addOnFailureListener {
+                handleException(it, "Cannot retrieve user data.")
             }
     }
 
