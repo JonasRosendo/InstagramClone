@@ -23,6 +23,7 @@ class InstagramViewModel @Inject constructor(
 
     private val _signedIn = mutableStateOf(false)
     private val _inProgress = mutableStateOf(false)
+    val inProgress: State<Boolean> = _inProgress
     private val user = mutableStateOf<User?>(null)
     private val _popupNotification = mutableStateOf<Event<String>?>(null)
     val popupNotification: State<Event<String>?> = _popupNotification
