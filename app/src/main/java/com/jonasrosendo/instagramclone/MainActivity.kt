@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,8 +35,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-sealed class Screen(val route: String) {
-    object SignUp : Screen("signup")
+sealed class DestinationScreen(val route: String) {
+    object SignUp : DestinationScreen(SIGNUP)
+
+    companion object {
+        const val SIGNUP = "signup"
+    }
 }
 
 @Composable
@@ -45,8 +48,8 @@ fun InstagramApp() {
     val vm = hiltViewModel<InstagramViewModel>()
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Screen.SignUp.route) {
-        composable(Screen.SignUp.route) {
+    NavHost(navController = navController, startDestination = DestinationScreen.SignUp.route) {
+        composable(DestinationScreen.SignUp.route) {
             SignUpScreen(navController = navController, viewModel = vm)
         }
     }
