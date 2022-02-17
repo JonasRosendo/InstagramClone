@@ -40,7 +40,6 @@ fun CommonCircularProgress() {
     }
 }
 
-
 @Preview(showBackground = false)
 @Composable
 fun PreviewComposable() {

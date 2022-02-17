@@ -19,7 +19,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -30,8 +29,7 @@ import com.jonasrosendo.instagramclone.navigation.DestinationScreen
 import com.jonasrosendo.instagramclone.navigation.navigateTo
 
 @Composable
-fun SignUpScreen(navController: NavController, viewModel: InstagramViewModel) {
-
+fun SignInScreen(navController: NavController, viewModel: InstagramViewModel) {
     val focus = LocalFocusManager.current
 
     Box(
@@ -41,12 +39,9 @@ fun SignUpScreen(navController: NavController, viewModel: InstagramViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(horizontal = 16.dp)
-                .verticalScroll(state = rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            val usernameState = remember { mutableStateOf(TextFieldValue()) }
             val emailState = remember { mutableStateOf(TextFieldValue()) }
             val passwordState = remember { mutableStateOf(TextFieldValue()) }
 
@@ -60,63 +55,51 @@ fun SignUpScreen(navController: NavController, viewModel: InstagramViewModel) {
             )
 
             Text(
-                text = "Welcome to Instagram Clone",
+                text = "Welcome back!",
                 modifier = Modifier.padding(8.dp),
-                textAlign = TextAlign.Center,
                 fontSize = 18.sp,
                 fontFamily = FontFamily.SansSerif
             )
 
-            val fieldModifier = Modifier
+
+            val modifier = Modifier
                 .padding(8.dp)
                 .fillMaxWidth()
 
             OutlinedTextField(
-                value = usernameState.value,
-                onValueChange = { usernameState.value = it },
-                modifier = fieldModifier,
-                label = { Text(text = "Username") }
-            )
-
-            OutlinedTextField(
                 value = emailState.value,
                 onValueChange = { emailState.value = it },
-                modifier = fieldModifier,
+                modifier = modifier,
                 label = { Text(text = "E-mail") }
             )
 
             OutlinedTextField(
                 value = passwordState.value,
                 onValueChange = { passwordState.value = it },
-                modifier = fieldModifier,
+                modifier = modifier,
                 label = { Text(text = "Password") },
                 visualTransformation = PasswordVisualTransformation()
             )
 
             Button(
                 onClick = {
-                    focus.clearFocus(true)
-                    viewModel.signUp(
-                        usernameState.value.text,
-                        emailState.value.text,
-                        passwordState.value.text
-                    )
+                          focus.clearFocus(force = true)
                 },
-                modifier = fieldModifier
+                modifier =  modifier
             ) {
                 Text(
-                    text = "Sign Up",
+                    text = "Sign In",
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
 
             Text(
-                text = "Already have an account? Sign In",
+                text = "New here? Go to sign up",
                 color = Color.Blue,
                 modifier = Modifier
                     .padding(8.dp)
                     .clickable {
-                        navController.navigateTo(DestinationScreen.SignIn)
+                        navController.navigateTo(DestinationScreen.SignUp)
                     }
             )
         }
@@ -126,4 +109,5 @@ fun SignUpScreen(navController: NavController, viewModel: InstagramViewModel) {
             CommonCircularProgress()
         }
     }
+
 }

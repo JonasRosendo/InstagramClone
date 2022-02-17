@@ -13,8 +13,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.jonasrosendo.instagramclone.auth.SignInScreen
 import com.jonasrosendo.instagramclone.auth.SignUpScreen
 import com.jonasrosendo.instagramclone.main.NotificationMessage
+import com.jonasrosendo.instagramclone.navigation.DestinationScreen
 import com.jonasrosendo.instagramclone.ui.theme.InstagramCloneTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -36,13 +38,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-sealed class DestinationScreen(val route: String) {
-    object SignUp : DestinationScreen(SIGNUP)
 
-    companion object {
-        const val SIGNUP = "signup"
-    }
-}
 
 @Composable
 fun InstagramApp() {
@@ -53,6 +49,10 @@ fun InstagramApp() {
     NavHost(navController = navController, startDestination = DestinationScreen.SignUp.route) {
         composable(DestinationScreen.SignUp.route) {
             SignUpScreen(navController = navController, viewModel = vm)
+        }
+
+        composable(DestinationScreen.SignIn.route) {
+            SignInScreen(navController = navController, viewModel = vm)
         }
     }
 }
