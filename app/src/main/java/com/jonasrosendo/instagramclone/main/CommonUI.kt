@@ -8,13 +8,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import com.jonasrosendo.instagramclone.InstagramViewModel
+import com.jonasrosendo.instagramclone.navigation.DestinationScreen
 
 @Composable
 fun NotificationMessage(viewModel: InstagramViewModel) {
@@ -37,6 +41,19 @@ fun CommonCircularProgress() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         CircularProgressIndicator()
+    }
+}
+
+@Composable
+fun CheckSignedIn(navController: NavController, viewModel: InstagramViewModel) {
+    val alreadySignedIn = remember { mutableStateOf(false) }
+    val signedIn = viewModel.signedIn.value
+
+    if (signedIn && alreadySignedIn.value.not()) {
+        alreadySignedIn.value = true
+        navController.navigate(DestinationScreen.Feed.route) {
+            popUpTo(0)
+        }
     }
 }
 

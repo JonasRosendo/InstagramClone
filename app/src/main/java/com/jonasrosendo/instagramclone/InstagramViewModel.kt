@@ -22,6 +22,7 @@ class InstagramViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _signedIn = mutableStateOf(false)
+    val signedIn: State<Boolean> = _signedIn
     private val _inProgress = mutableStateOf(false)
     val inProgress: State<Boolean> = _inProgress
     private val user = mutableStateOf<User?>(null)
@@ -29,7 +30,6 @@ class InstagramViewModel @Inject constructor(
     val popupNotification: State<Event<String>?> = _popupNotification
 
     init {
-        firebaseAuth.signOut()
         val currentUser = firebaseAuth.currentUser
         _signedIn.value = currentUser != null
         currentUser?.uid?.let { uid ->

@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jonasrosendo.instagramclone.auth.SignInScreen
 import com.jonasrosendo.instagramclone.auth.SignUpScreen
+import com.jonasrosendo.instagramclone.main.FeedScreen
 import com.jonasrosendo.instagramclone.main.NotificationMessage
 import com.jonasrosendo.instagramclone.navigation.DestinationScreen
 import com.jonasrosendo.instagramclone.ui.theme.InstagramCloneTheme
@@ -39,7 +40,6 @@ class MainActivity : ComponentActivity() {
 }
 
 
-
 @Composable
 fun InstagramApp() {
     val vm = hiltViewModel<InstagramViewModel>()
@@ -53,6 +53,10 @@ fun InstagramApp() {
 
         composable(DestinationScreen.SignIn.route) {
             SignInScreen(navController = navController, viewModel = vm)
+        }
+
+        composable(DestinationScreen.Feed.route) {
+            FeedScreen(navController = navController, viewModel = vm)
         }
     }
 }
