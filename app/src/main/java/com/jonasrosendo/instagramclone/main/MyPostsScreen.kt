@@ -23,6 +23,8 @@ import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import com.jonasrosendo.instagramclone.InstagramViewModel
 import com.jonasrosendo.instagramclone.R
+import com.jonasrosendo.instagramclone.navigation.DestinationScreen
+import com.jonasrosendo.instagramclone.navigation.navigateTo
 
 @ExperimentalCoilApi
 @Composable
@@ -85,7 +87,7 @@ fun MyPostsScreen(navController: NavController, viewModel: InstagramViewModel) {
                     disabledElevation = 0.dp
                 ),
                 shape = RoundedCornerShape(10),
-                onClick = { }
+                onClick = { navController.navigateTo(DestinationScreen.Profile) }
             ) {
                 Text(text = "Edit Profile", color = Color.Black)
             }

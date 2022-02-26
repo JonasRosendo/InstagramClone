@@ -4,17 +4,19 @@ import androidx.navigation.NavController
 
 sealed class DestinationScreen(val route: String) {
     object SignUp : DestinationScreen(SIGNUP)
-    object SignIn : DestinationScreen(SIGNIN)
+    object SignIn : DestinationScreen(SIGN_IN)
     object Feed : DestinationScreen(FEED)
-    object MyPosts : DestinationScreen(MYPOSTS)
+    object MyPosts : DestinationScreen(MY_POSTS)
     object Search : DestinationScreen(SEARCH)
+    object Profile : DestinationScreen(PROFILE)
 
     companion object {
         private const val SIGNUP = "SIGNUP"
-        private const val SIGNIN = "SIGNIN"
+        private const val SIGN_IN = "SIGN_IN"
         private const val FEED = "FEED"
-        private const val MYPOSTS = "MYPOSTS"
+        private const val MY_POSTS = "MY_POSTS"
         private const val SEARCH = "SEARCH"
+        private const val PROFILE = "PROFILE"
     }
 }
 
