@@ -1,11 +1,13 @@
 package com.jonasrosendo.instagramclone
 
 import android.net.Uri
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
 import com.jonasrosendo.instagramclone.Constants.POSTS
@@ -33,6 +35,9 @@ class InstagramViewModel @Inject constructor(
     val user: State<User?> = _user
     private val _popupNotification = mutableStateOf<Event<String>?>(null)
     val popupNotification: State<Event<String>?> = _popupNotification
+
+    private val _refreshPostsProgress = mutableStateOf(false)
+    private val _posts = mutableStateOf<List<Post>>(listOf())
 
     init {
         val currentUser = firebaseAuth.currentUser
@@ -157,7 +162,7 @@ class InstagramViewModel @Inject constructor(
                 val user = document.toObject<User>()
                 this._user.value = user
                 _inProgress.value = false
-                _popupNotification.value = Event("User data retrieved sucessfully")
+                refreshPosts()
             }.addOnFailureListener {
                 handleException(it, "Cannot retrieve user data.")
                 _inProgress.value = false
@@ -202,7 +207,7 @@ class InstagramViewModel @Inject constructor(
         }
     }
 
-    fun onSignout() {
+    fun onSignOut() {
         firebaseAuth.signOut()
         _signedIn.value = false
         _user.value = null
@@ -238,6 +243,7 @@ class InstagramViewModel @Inject constructor(
                 .addOnSuccessListener {
                     _popupNotification.value = Event("Post successfully created")
                     _inProgress.value = false
+                    refreshPosts()
                     onPostSuccess()
                 }.addOnFailureListener {
                     handleException(it, "Unable to create post")
@@ -246,8 +252,37 @@ class InstagramViewModel @Inject constructor(
 
         } else {
             handleException(message = "Error: Username unavailable. Unable to create post.")
-            onSignout()
+            onSignOut()
             _inProgress.value = false
         }
+    }
+
+    private fun refreshPosts() {
+        val currentUid = firebaseAuth.currentUser?.uid
+        if (currentUid != null) {
+            _refreshPostsProgress.value = true
+            firebaseStore.collection(POSTS).whereEqualTo("userId", currentUid).get()
+                .addOnSuccessListener { documents ->
+                    convertPosts(documents, _posts)
+                    _refreshPostsProgress.value = false
+                }.addOnFailureListener {
+                    handleException(it, "Cannot fetch posts")
+                    _refreshPostsProgress.value = false
+                }
+        } else {
+            handleException(message = "Error: Username unavailable. Unable to refresh posts.")
+            onSignOut()
+            _inProgress.value = false
+        }
+    }
+
+    private fun convertPosts(documents: QuerySnapshot, outState: MutableState<List<Post>>) {
+        val newPosts = mutableListOf<Post>()
+        documents.forEach { doc ->
+            val post = doc.toObject<Post>()
+            newPosts.add(post)
+        }
+        val sortedPosts = newPosts.sortedByDescending { it.time }
+        outState.value = sortedPosts
     }
 }

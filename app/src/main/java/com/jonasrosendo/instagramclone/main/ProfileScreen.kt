@@ -50,7 +50,7 @@ fun ProfileScreen(navController: NavController, viewModel: InstagramViewModel) {
             onSave = { viewModel.updateProfileData(name, username, bio) },
             onBack = { navController.navigateTo(DestinationScreen.MyPosts) },
             onLogout = {
-                viewModel.onSignout()
+                viewModel.onSignOut()
                 navController.navigateTo(DestinationScreen.SignIn)
             }
         )
