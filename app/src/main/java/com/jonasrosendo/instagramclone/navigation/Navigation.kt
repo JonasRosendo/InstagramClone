@@ -9,14 +9,18 @@ sealed class DestinationScreen(val route: String) {
     object MyPosts : DestinationScreen(MY_POSTS)
     object Search : DestinationScreen(SEARCH)
     object Profile : DestinationScreen(PROFILE)
+    object NewPost : DestinationScreen("$NEW_POST/{imageUri}") {
+        fun createRoute(uri: String) = "$NEW_POST/$uri"
+    }
 
     companion object {
-        private const val SIGNUP = "SIGNUP"
-        private const val SIGN_IN = "SIGN_IN"
-        private const val FEED = "FEED"
-        private const val MY_POSTS = "MY_POSTS"
-        private const val SEARCH = "SEARCH"
-        private const val PROFILE = "PROFILE"
+        private const val SIGNUP = "signup"
+        private const val SIGN_IN = "signin"
+        private const val FEED = "feed"
+        private const val MY_POSTS = "myposts"
+        private const val SEARCH = "search"
+        private const val PROFILE = "profile"
+        private const val NEW_POST = "newpost"
     }
 }
 
