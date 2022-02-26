@@ -37,7 +37,10 @@ class InstagramViewModel @Inject constructor(
     val popupNotification: State<Event<String>?> = _popupNotification
 
     private val _refreshPostsProgress = mutableStateOf(false)
+    val refreshPostsProgress: State<Boolean> = _refreshPostsProgress
+
     private val _posts = mutableStateOf<List<Post>>(listOf())
+    val posts: State<List<Post>> = _posts
 
     init {
         val currentUser = firebaseAuth.currentUser
