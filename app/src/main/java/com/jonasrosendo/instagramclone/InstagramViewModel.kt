@@ -25,11 +25,13 @@ class InstagramViewModel @Inject constructor(
     val signedIn: State<Boolean> = _signedIn
     private val _inProgress = mutableStateOf(false)
     val inProgress: State<Boolean> = _inProgress
-    private val user = mutableStateOf<User?>(null)
+    private val _user = mutableStateOf<User?>(null)
+    val user: State<User?> = _user
     private val _popupNotification = mutableStateOf<Event<String>?>(null)
     val popupNotification: State<Event<String>?> = _popupNotification
 
     init {
+        //firebaseAuth.signOut()
         val currentUser = firebaseAuth.currentUser
         _signedIn.value = currentUser != null
         currentUser?.uid?.let { uid ->
@@ -108,11 +110,11 @@ class InstagramViewModel @Inject constructor(
         val uid = firebaseAuth.currentUser?.uid
         val currentUser = User(
             userId = uid,
-            name = name ?: user.value?.name,
-            username = username ?: user.value?.username,
-            imageUrl = imageUrl ?: user.value?.imageUrl,
-            bio = bio ?: user.value?.bio,
-            following = user.value?.following
+            name = name ?: _user.value?.name,
+            username = username ?: _user.value?.username,
+            imageUrl = imageUrl ?: _user.value?.imageUrl,
+            bio = bio ?: _user.value?.bio,
+            following = _user.value?.following
         )
 
         uid?.let {
@@ -122,7 +124,7 @@ class InstagramViewModel @Inject constructor(
                     if (document.exists()) {
                         document.reference.update(currentUser.toMap())
                             .addOnSuccessListener {
-                                user.value = currentUser
+                                _user.value = currentUser
                             }.addOnFailureListener { exception ->
                                 handleException(exception, "Cannot update user")
                                 _inProgress.value = false
@@ -143,7 +145,7 @@ class InstagramViewModel @Inject constructor(
         firebaseStore.collection(USERS).document(uid).get()
             .addOnSuccessListener { document ->
                 val user = document.toObject<User>()
-                this.user.value = user
+                this._user.value = user
                 _inProgress.value = false
                 _popupNotification.value = Event("User data retrieved sucessfully")
             }.addOnFailureListener {
