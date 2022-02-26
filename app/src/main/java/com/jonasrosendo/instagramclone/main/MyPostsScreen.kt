@@ -102,6 +102,10 @@ fun MyPostsScreen(navController: NavController, viewModel: InstagramViewModel) {
             navController = navController
         )
     }
+
+    if (isLoading) {
+        CommonCircularProgress()
+    }
 }
 
 @ExperimentalCoilApi
