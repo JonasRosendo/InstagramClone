@@ -1,5 +1,6 @@
 package com.jonasrosendo.instagramclone.navigation
 
+import android.os.Parcelable
 import androidx.navigation.NavController
 
 sealed class DestinationScreen(val route: String) {
@@ -13,6 +14,8 @@ sealed class DestinationScreen(val route: String) {
         fun createRoute(uri: String) = "$NEW_POST/$uri"
     }
 
+    object PostDetails : DestinationScreen(POST_DETAILS)
+
     companion object {
         private const val SIGNUP = "signup"
         private const val SIGN_IN = "signin"
@@ -21,10 +24,20 @@ sealed class DestinationScreen(val route: String) {
         private const val SEARCH = "search"
         private const val PROFILE = "profile"
         private const val NEW_POST = "newpost"
+        private const val POST_DETAILS = "postdetails"
     }
 }
 
-fun NavController.navigateTo(destinationScreen: DestinationScreen) {
+data class NavParam(
+    val name: String,
+    val value: Parcelable
+)
+
+fun NavController.navigateTo(destinationScreen: DestinationScreen, vararg params: NavParam) {
+    for (param in params) {
+        currentBackStackEntry?.arguments?.putParcelable(param.name, param.value)
+    }
+
     navigate(destinationScreen.route) {
         popUpTo(destinationScreen.route)
         launchSingleTop = true

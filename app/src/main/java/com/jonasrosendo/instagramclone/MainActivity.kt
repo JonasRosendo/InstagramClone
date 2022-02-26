@@ -10,13 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.annotation.ExperimentalCoilApi
 import com.jonasrosendo.instagramclone.auth.SignInScreen
 import com.jonasrosendo.instagramclone.auth.SignUpScreen
+import com.jonasrosendo.instagramclone.data.Post
 import com.jonasrosendo.instagramclone.main.*
 import com.jonasrosendo.instagramclone.navigation.DestinationScreen
 import com.jonasrosendo.instagramclone.ui.theme.InstagramCloneTheme
@@ -77,6 +77,15 @@ fun InstagramApp() {
             val imageUri = navBackStackEntry.arguments?.getString("imageUri")
             imageUri?.let {
                 NewPostScreen(navController = navController, viewModel = vm, encodedUri = it)
+            }
+        }
+
+        composable(DestinationScreen.PostDetails.route) {
+            val post =
+                navController.previousBackStackEntry?.arguments?.getParcelable<Post>(Constants.POST)
+
+            post?.let {
+                PostDetailsScreen(navController = navController, viewModel = vm, post = post)
             }
         }
     }

@@ -27,10 +27,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
+import com.jonasrosendo.instagramclone.Constants
 import com.jonasrosendo.instagramclone.InstagramViewModel
 import com.jonasrosendo.instagramclone.R
 import com.jonasrosendo.instagramclone.data.Post
 import com.jonasrosendo.instagramclone.navigation.DestinationScreen
+import com.jonasrosendo.instagramclone.navigation.NavParam
 import com.jonasrosendo.instagramclone.navigation.navigateTo
 
 data class PostRow(
@@ -142,7 +144,10 @@ fun MyPostsScreen(navController: NavController, viewModel: InstagramViewModel) {
                     .padding(1.dp)
                     .fillMaxSize()
             ) { post ->
-
+                navController.navigateTo(
+                    DestinationScreen.PostDetails,
+                    NavParam(name = Constants.POST, post)
+                )
             }
         }
 
