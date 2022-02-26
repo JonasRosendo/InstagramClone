@@ -71,6 +71,11 @@ class InstagramViewModel @Inject constructor(
                 }
             }
             .addOnFailureListener {
+                handleException(
+                    exception = it,
+                    message = "Sign up failed"
+                )
+                _inProgress.value = false
 
             }
     }
@@ -125,6 +130,7 @@ class InstagramViewModel @Inject constructor(
                         document.reference.update(currentUser.toMap())
                             .addOnSuccessListener {
                                 _user.value = currentUser
+                                _inProgress.value = false
                             }.addOnFailureListener { exception ->
                                 handleException(exception, "Cannot update user")
                                 _inProgress.value = false
@@ -132,6 +138,7 @@ class InstagramViewModel @Inject constructor(
                     } else {
                         firebaseStore.collection(USERS).document(uid).set(currentUser)
                         getUserData(uid)
+                        _inProgress.value = false
                     }
                 }.addOnFailureListener { exception ->
                     handleException(exception, "Cannot create user")
@@ -150,6 +157,7 @@ class InstagramViewModel @Inject constructor(
                 _popupNotification.value = Event("User data retrieved sucessfully")
             }.addOnFailureListener {
                 handleException(it, "Cannot retrieve user data.")
+                _inProgress.value = false
             }
     }
 
@@ -160,5 +168,9 @@ class InstagramViewModel @Inject constructor(
             if (message?.isEmpty() == true) errorMessage
             else "$message: $errorMessage"
         _popupNotification.value = Event(customMessage)
+    }
+
+    fun updateProfileData(name: String, username: String, bio: String) {
+        createOrUpdateProfile(name, username, bio)
     }
 }
