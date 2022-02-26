@@ -1,10 +1,13 @@
 package com.jonasrosendo.instagramclone.main
 
-import androidx.compose.foundation.background
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -18,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.annotation.ExperimentalCoilApi
 import com.jonasrosendo.instagramclone.InstagramViewModel
 import com.jonasrosendo.instagramclone.navigation.DestinationScreen
 import com.jonasrosendo.instagramclone.navigation.navigateTo
@@ -49,6 +53,7 @@ fun ProfileScreen(navController: NavController, viewModel: InstagramViewModel) {
     }
 }
 
+@ExperimentalCoilApi
 @Composable
 fun ProfileContent(
     viewModel: InstagramViewModel,
@@ -63,6 +68,7 @@ fun ProfileContent(
     onLogout: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val imageUrl = viewModel.user.value?.imageUrl
 
     Column(
         modifier = Modifier
@@ -82,14 +88,7 @@ fun ProfileContent(
         CommonDivider()
 
         // user Image
-        Column(
-            modifier = Modifier
-                .height(200.dp)
-                .fillMaxWidth()
-                .background(Color.Gray)
-        ) {
-
-        }
+        ProfileImage(imageUrl = imageUrl, viewModel = viewModel)
 
         CommonDivider()
 
@@ -153,6 +152,43 @@ fun ProfileContent(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(text = "Logout", modifier = Modifier.clickable { onLogout() })
+        }
+    }
+}
+
+@ExperimentalCoilApi
+@Composable
+fun ProfileImage(imageUrl: String?, viewModel: InstagramViewModel) {
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            viewModel.uploadProfileImage(it)
+        }
+    }
+
+    Box(modifier = Modifier.height(IntrinsicSize.Min)) {
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .clickable { launcher.launch("image/*") },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Card(
+                shape = CircleShape, modifier = Modifier
+                    .padding(8.dp)
+                    .size(100.dp)
+            ) {
+                CommonImage(data = imageUrl)
+            }
+            Text(text = "Change profile picture")
+        }
+
+        val isLoading = viewModel.inProgress.value
+        if (isLoading) {
+            CommonCircularProgress()
         }
     }
 }

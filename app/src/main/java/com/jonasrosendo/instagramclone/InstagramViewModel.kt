@@ -1,5 +1,6 @@
 package com.jonasrosendo.instagramclone
 
+import android.net.Uri
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -12,6 +13,7 @@ import com.jonasrosendo.instagramclone.Constants.USERS
 import com.jonasrosendo.instagramclone.data.Event
 import com.jonasrosendo.instagramclone.data.User
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -173,4 +175,30 @@ class InstagramViewModel @Inject constructor(
     fun updateProfileData(name: String, username: String, bio: String) {
         createOrUpdateProfile(name, username, bio)
     }
+
+    private fun uploadImage(uri: Uri, onSuccess: (Uri) -> Unit) {
+        _inProgress.value = true
+
+        val storageRef = firebaseStorage.reference
+        val uuid = UUID.randomUUID()
+        val imageRef = storageRef.child("images/$uuid")
+        val uploadTask = imageRef.putFile(uri)
+
+        uploadTask.addOnSuccessListener {
+            val result = it.metadata?.reference?.downloadUrl
+            result?.addOnSuccessListener { uri ->
+                onSuccess(uri)
+            }
+        }.addOnFailureListener {
+            handleException(it)
+            _inProgress.value = false
+        }
+    }
+
+    fun uploadProfileImage(uri: Uri) {
+        uploadImage(uri = uri) {
+            createOrUpdateProfile(imageUrl = it.toString())
+        }
+    }
+
 }
