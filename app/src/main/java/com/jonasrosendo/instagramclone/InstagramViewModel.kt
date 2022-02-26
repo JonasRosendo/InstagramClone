@@ -8,9 +8,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
+import com.jonasrosendo.instagramclone.Constants.POSTS
 import com.jonasrosendo.instagramclone.Constants.USERNAME
 import com.jonasrosendo.instagramclone.Constants.USERS
 import com.jonasrosendo.instagramclone.data.Event
+import com.jonasrosendo.instagramclone.data.Post
 import com.jonasrosendo.instagramclone.data.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.*
@@ -205,5 +207,47 @@ class InstagramViewModel @Inject constructor(
         _signedIn.value = false
         _user.value = null
         _popupNotification.value = Event("Logged out")
+    }
+
+    fun onNewPost(uri: Uri, description: String, onPostSuccess: () -> Unit) {
+        uploadImage(uri) {
+            onCreatePost(it, description, onPostSuccess)
+        }
+    }
+
+    private fun onCreatePost(imageUri: Uri, description: String, onPostSuccess: () -> Unit) {
+        _inProgress.value = true
+        val currentUid = firebaseAuth.currentUser?.uid
+        val currentUsername = _user.value?.username
+        val currentUserImage = _user.value?.imageUrl
+
+        if (currentUid != null) {
+            val postUuid = UUID.randomUUID().toString()
+
+            val post = Post(
+                postId = postUuid,
+                userId = currentUid,
+                username = currentUsername,
+                userImage = currentUserImage,
+                postImage = imageUri.toString(),
+                postDescription = description,
+                time = System.currentTimeMillis()
+            )
+
+            firebaseStore.collection(POSTS).document(postUuid).set(post)
+                .addOnSuccessListener {
+                    _popupNotification.value = Event("Post successfully created")
+                    _inProgress.value = false
+                    onPostSuccess()
+                }.addOnFailureListener {
+                    handleException(it, "Unable to create post")
+                    _inProgress.value = false
+                }
+
+        } else {
+            handleException(message = "Error: Username unavailable. Unable to create post.")
+            onSignout()
+            _inProgress.value = false
+        }
     }
 }

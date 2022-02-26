@@ -1,5 +1,6 @@
 package com.jonasrosendo.instagramclone.main
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -43,7 +44,9 @@ fun NewPostScreen(navController: NavController, viewModel: InstagramViewModel, e
             Text(text = "Cancel", modifier = Modifier.clickable { navController.popBackStack() })
             Text(text = "Post", modifier = Modifier.clickable {
                 focusManager.clearFocus()
-
+                viewModel.onNewPost(Uri.parse(imageUri), description) {
+                    navController.popBackStack()
+                }
             })
         }
 
