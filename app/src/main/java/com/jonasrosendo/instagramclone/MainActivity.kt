@@ -13,6 +13,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.annotation.ExperimentalCoilApi
 import com.jonasrosendo.instagramclone.auth.SignInScreen
 import com.jonasrosendo.instagramclone.auth.SignUpScreen
 import com.jonasrosendo.instagramclone.main.*
@@ -20,6 +21,7 @@ import com.jonasrosendo.instagramclone.navigation.DestinationScreen
 import com.jonasrosendo.instagramclone.ui.theme.InstagramCloneTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+@ExperimentalCoilApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +40,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@ExperimentalCoilApi
 @Composable
 fun InstagramApp() {
     val vm = hiltViewModel<InstagramViewModel>()
@@ -71,6 +74,7 @@ fun InstagramApp() {
     }
 }
 
+@ExperimentalCoilApi
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {

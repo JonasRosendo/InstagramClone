@@ -33,7 +33,6 @@ class InstagramViewModel @Inject constructor(
     val popupNotification: State<Event<String>?> = _popupNotification
 
     init {
-        //firebaseAuth.signOut()
         val currentUser = firebaseAuth.currentUser
         _signedIn.value = currentUser != null
         currentUser?.uid?.let { uid ->
@@ -201,4 +200,10 @@ class InstagramViewModel @Inject constructor(
         }
     }
 
+    fun onSignout() {
+        firebaseAuth.signOut()
+        _signedIn.value = false
+        _user.value = null
+        _popupNotification.value = Event("Logged out")
+    }
 }

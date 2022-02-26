@@ -26,6 +26,7 @@ import com.jonasrosendo.instagramclone.InstagramViewModel
 import com.jonasrosendo.instagramclone.navigation.DestinationScreen
 import com.jonasrosendo.instagramclone.navigation.navigateTo
 
+@ExperimentalCoilApi
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: InstagramViewModel) {
     val isLoading = viewModel.inProgress.value
@@ -48,7 +49,10 @@ fun ProfileScreen(navController: NavController, viewModel: InstagramViewModel) {
             onBioChanged = { bio = it },
             onSave = { viewModel.updateProfileData(name, username, bio) },
             onBack = { navController.navigateTo(DestinationScreen.MyPosts) },
-            onLogout = { }
+            onLogout = {
+                viewModel.onSignout()
+                navController.navigateTo(DestinationScreen.SignIn)
+            }
         )
     }
 }
