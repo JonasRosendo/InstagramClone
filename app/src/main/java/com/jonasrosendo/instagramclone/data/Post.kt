@@ -11,6 +11,7 @@ data class Post(
     val postImage: String? = null,
     val postDescription: String? = null,
     val time: Long? = null,
+    val likes: List<String>? = null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
@@ -19,7 +20,8 @@ data class Post(
         parcel.readString(),
         parcel.readString(),
         parcel.readString(),
-        parcel.readValue(Long::class.java.classLoader) as? Long
+        parcel.readValue(Long::class.java.classLoader) as? Long,
+        parcel.createStringArrayList()
     ) {
     }
 
@@ -31,6 +33,7 @@ data class Post(
         parcel.writeString(postImage)
         parcel.writeString(postDescription)
         parcel.writeValue(time)
+        parcel.writeStringList(likes)
     }
 
     override fun describeContents(): Int {
