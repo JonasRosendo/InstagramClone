@@ -17,6 +17,9 @@ fun SearchScreen(navController: NavController, viewModel: InstagramViewModel) {
         {
             Text(text = "Search screen")
         }
-        BottomNavigationMenu(selectedItem = BottomNavigationItem.SEARCH, navController = navController)
+        BottomNavigationMenu(
+            selectedItem = BottomNavigationItem.SEARCH,
+            navController = navController
+        )
     }
 }

@@ -43,6 +43,9 @@ class InstagramViewModel @Inject constructor(
     private val _posts = mutableStateOf<List<Post>>(listOf())
     val posts: State<List<Post>> = _posts
 
+    private val _searchedPosts = mutableStateOf<List<Post>>(listOf())
+    private val _searchPostProgress = mutableStateOf(false)
+
     init {
         val currentUser = firebaseAuth.currentUser
         _signedIn.value = currentUser != null
@@ -261,7 +264,6 @@ class InstagramViewModel @Inject constructor(
         val currentUsername = _user.value?.username
         val currentUserImage = _user.value?.imageUrl
 
-
         val searchTerms = description.split(" ", ".", ",", "?", "!", "#").map {
             it.lowercase()
         }.filter {
@@ -328,5 +330,21 @@ class InstagramViewModel @Inject constructor(
         }
         val sortedPosts = newPosts.sortedByDescending { it.time }
         outState.value = sortedPosts
+    }
+
+    fun searchPosts(searchTerm: String) {
+        if (searchTerm.isNotEmpty()) {
+            _searchPostProgress.value = true
+            firebaseStore.collection(POSTS).whereArrayContains(
+                "searchTerms", searchTerm.trim().lowercase()
+            ).get()
+                .addOnSuccessListener { documents ->
+                    convertPosts(documents, _searchedPosts)
+                    _searchPostProgress.value = false
+                }.addOnFailureListener {
+                    handleException(it, "Cannot search posts")
+                    _searchPostProgress.value = false
+                }
+        }
     }
 }
