@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.toObject
@@ -207,6 +208,37 @@ class InstagramViewModel @Inject constructor(
     fun uploadProfileImage(uri: Uri) {
         uploadImage(uri = uri) {
             createOrUpdateProfile(imageUrl = it.toString())
+            updatePostUserImageData(it.toString())
+        }
+    }
+
+    private fun updatePostUserImageData(imageUrl: String) {
+        val currentUuid = firebaseAuth.currentUser?.uid
+        currentUuid?.let { uid ->
+            firebaseStore.collection(POSTS).whereEqualTo("userId", uid).get()
+                .addOnSuccessListener { documents ->
+                    val posts = mutableStateOf<List<Post>>(arrayListOf())
+                    convertPosts(documents, posts)
+                    val refs = arrayListOf<DocumentReference>()
+
+                    for(post in posts.value) {
+                        post.postId?.let { id ->
+                            refs.add(firebaseStore.collection(POSTS).document(id))
+                        }
+                    }
+
+                    if (refs.isNotEmpty()) {
+                        firebaseStore.runBatch { batch ->
+                            for (ref in refs) {
+                                batch.update(ref, "userImage", imageUrl)
+                            }
+                        }.addOnSuccessListener {
+                            refreshPosts()
+                        }
+                    }
+                }.addOnFailureListener {
+
+                }
         }
     }
 
@@ -239,7 +271,8 @@ class InstagramViewModel @Inject constructor(
                 userImage = currentUserImage,
                 postImage = imageUri.toString(),
                 postDescription = description,
-                time = System.currentTimeMillis()
+                time = System.currentTimeMillis(),
+                likes = listOf<String>()
             )
 
             firebaseStore.collection(POSTS).document(postUuid).set(post)
