@@ -221,7 +221,7 @@ class InstagramViewModel @Inject constructor(
                     convertPosts(documents, posts)
                     val refs = arrayListOf<DocumentReference>()
 
-                    for(post in posts.value) {
+                    for (post in posts.value) {
                         post.postId?.let { id ->
                             refs.add(firebaseStore.collection(POSTS).document(id))
                         }
@@ -261,6 +261,13 @@ class InstagramViewModel @Inject constructor(
         val currentUsername = _user.value?.username
         val currentUserImage = _user.value?.imageUrl
 
+
+        val searchTerms = description.split(" ", ".", ",", "?", "!", "#").map {
+            it.lowercase()
+        }.filter {
+            it.isNotEmpty() and fillerWords.contains(it).not()
+        }
+
         if (currentUid != null) {
             val postUuid = UUID.randomUUID().toString()
 
@@ -272,7 +279,8 @@ class InstagramViewModel @Inject constructor(
                 postImage = imageUri.toString(),
                 postDescription = description,
                 time = System.currentTimeMillis(),
-                likes = listOf<String>()
+                likes = listOf<String>(),
+                searchTerms = searchTerms
             )
 
             firebaseStore.collection(POSTS).document(postUuid).set(post)
