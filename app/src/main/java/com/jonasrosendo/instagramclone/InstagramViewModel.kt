@@ -30,10 +30,13 @@ class InstagramViewModel @Inject constructor(
 
     private val _signedIn = mutableStateOf(false)
     val signedIn: State<Boolean> = _signedIn
+
     private val _inProgress = mutableStateOf(false)
     val inProgress: State<Boolean> = _inProgress
+
     private val _user = mutableStateOf<User?>(null)
     val user: State<User?> = _user
+
     private val _popupNotification = mutableStateOf<Event<String>?>(null)
     val popupNotification: State<Event<String>?> = _popupNotification
 
@@ -44,7 +47,10 @@ class InstagramViewModel @Inject constructor(
     val posts: State<List<Post>> = _posts
 
     private val _searchedPosts = mutableStateOf<List<Post>>(listOf())
+    val searchedPosts: State<List<Post>> = _searchedPosts
+
     private val _searchPostProgress = mutableStateOf(false)
+    val searchPostProgress: State<Boolean> = _searchPostProgress
 
     init {
         val currentUser = firebaseAuth.currentUser
