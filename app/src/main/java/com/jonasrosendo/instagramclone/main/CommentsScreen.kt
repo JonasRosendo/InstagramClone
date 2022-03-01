@@ -45,7 +45,7 @@ fun CommentsScreen(navController: NavController, viewModel: InstagramViewModel, 
             }
         } else if (comments.isEmpty()) {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.weight(1f).fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -112,6 +112,4 @@ fun CommentRow(comment: Comment) {
 
         CommonDivider()
     }
-
-
 }
