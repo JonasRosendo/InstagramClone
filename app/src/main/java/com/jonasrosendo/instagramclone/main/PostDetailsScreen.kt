@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,11 +23,17 @@ import com.jonasrosendo.instagramclone.InstagramViewModel
 import com.jonasrosendo.instagramclone.R
 import com.jonasrosendo.instagramclone.data.Post
 import com.jonasrosendo.instagramclone.navigation.DestinationScreen
-import com.jonasrosendo.instagramclone.navigation.navigateTo
 
 @ExperimentalCoilApi
 @Composable
 fun PostDetailsScreen(navController: NavController, viewModel: InstagramViewModel, post: Post) {
+
+    val comments = viewModel.comments.value
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getComments(post.postId)
+    }
+
     post.userId?.let {
         Column(
             modifier = Modifier
@@ -37,14 +44,24 @@ fun PostDetailsScreen(navController: NavController, viewModel: InstagramViewMode
             Text(text = "Back", modifier = Modifier.clickable { navController.popBackStack() })
             CommonDivider()
 
-            PostDetails(navController = navController, viewModel = viewModel, post = post)
+            PostDetails(
+                navController = navController,
+                viewModel = viewModel,
+                post = post,
+                numberOfComments = comments.size
+            )
         }
     }
 }
 
 @ExperimentalCoilApi
 @Composable
-fun PostDetails(navController: NavController, viewModel: InstagramViewModel, post: Post) {
+fun PostDetails(
+    navController: NavController,
+    viewModel: InstagramViewModel,
+    post: Post,
+    numberOfComments: Int
+) {
     val user = viewModel.user.value
     Box(
         modifier = Modifier
@@ -114,7 +131,7 @@ fun PostDetails(navController: NavController, viewModel: InstagramViewModel, pos
 
     Row(modifier = Modifier.padding(8.dp)) {
         Text(
-            text = "10 comments",
+            text = "$numberOfComments comments",
             color = Color.Gray,
             modifier = Modifier
                 .padding(start = 8.dp)

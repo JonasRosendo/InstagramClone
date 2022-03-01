@@ -60,8 +60,8 @@ class InstagramViewModel @Inject constructor(
     private val _commentsProgress = mutableStateOf(false)
     val commentsProgress: State<Boolean> = _commentsProgress
 
-    private val _comments = mutableStateOf<List<Post>>(listOf())
-    val comments: State<List<Post>> = _comments
+    private val _comments = mutableStateOf<List<Comment>>(listOf())
+    val comments: State<List<Comment>> = _comments
 
     private val _feedPostsProgress = mutableStateOf(false)
     val feedPostsProgress: State<Boolean> = _feedPostsProgress
@@ -455,6 +455,10 @@ class InstagramViewModel @Inject constructor(
     }
 
     fun createComment(postId: String, text: String) {
+        if (text.isEmpty()) {
+            _popupNotification.value = Event("Comment should not be empty.")
+            return
+        }
         _user.value?.username?.let { username ->
             val commentId = UUID.randomUUID().toString()
             val comment = Comment(
@@ -467,10 +471,31 @@ class InstagramViewModel @Inject constructor(
 
             firebaseStore.collection(COMMENTS).document(commentId).set(comment)
                 .addOnSuccessListener {
-                    // get existing comments
+                    getComments(postId)
                 }.addOnFailureListener {
                     handleException(it, "Not possible to add comment")
                 }
         }
+    }
+
+    fun getComments(postId: String?) {
+        _commentsProgress.value = true
+        firebaseStore.collection(COMMENTS).whereEqualTo("postId", postId).get()
+            .addOnSuccessListener { documents ->
+                val newComments = mutableListOf<Comment>()
+                documents.forEach { doc ->
+                    val comment = doc.toObject<Comment>()
+                    newComments.add(comment)
+                }
+
+                val sortedComments = newComments.sortedByDescending { it.time }
+                _comments.value = sortedComments
+                _commentsProgress.value = false
+
+
+            }.addOnFailureListener {
+                handleException(it, "Cannot retrieve comments")
+                _commentsProgress.value = false
+            }
     }
 }
