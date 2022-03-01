@@ -1,6 +1,8 @@
 package com.jonasrosendo.instagramclone.main
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,9 +12,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -23,6 +28,10 @@ import com.jonasrosendo.instagramclone.data.Post
 import com.jonasrosendo.instagramclone.navigation.DestinationScreen
 import com.jonasrosendo.instagramclone.navigation.NavParam
 import com.jonasrosendo.instagramclone.navigation.navigateTo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @ExperimentalCoilApi
 @Composable
@@ -87,6 +96,7 @@ fun FeedPostList(
     }
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @ExperimentalCoilApi
 @Composable
 fun PostItem(
@@ -95,6 +105,10 @@ fun PostItem(
     viewModel: InstagramViewModel,
     onPostClick: () -> Unit
 ) {
+
+    val likeAnimation = remember { mutableStateOf(false) }
+    val dislikeAnimation = remember { mutableStateOf(false) }
+
     Card(
         shape = RoundedCornerShape(corner = CornerSize(4.dp)),
         modifier = Modifier
@@ -125,9 +139,40 @@ fun PostItem(
                     data = post.postImage,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .defaultMinSize(minHeight = 150.dp),
+                        .defaultMinSize(minHeight = 150.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onDoubleTap = {
+                                    if (post.likes?.contains(currentUserId) == true) {
+                                        dislikeAnimation.value = true
+                                    } else {
+                                        likeAnimation.value = true
+                                    }
+                                    viewModel.onLikePost(post)
+                                },
+                                onTap = {
+                                    onPostClick()
+                                }
+                            )
+                        },
                     contentScale = ContentScale.FillWidth
                 )
+
+                if (likeAnimation.value) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(1000L)
+                        likeAnimation.value = false
+                    }
+                    LikeAnimation()
+                }
+
+                if (dislikeAnimation.value) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(1000L)
+                        dislikeAnimation.value = false
+                    }
+                    LikeAnimation(false)
+                }
             }
         }
     }

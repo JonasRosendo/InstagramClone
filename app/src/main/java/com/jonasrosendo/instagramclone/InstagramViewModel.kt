@@ -11,9 +11,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
+import com.jonasrosendo.instagramclone.Constants.COMMENTS
 import com.jonasrosendo.instagramclone.Constants.POSTS
 import com.jonasrosendo.instagramclone.Constants.USERNAME
 import com.jonasrosendo.instagramclone.Constants.USERS
+import com.jonasrosendo.instagramclone.data.Comment
 import com.jonasrosendo.instagramclone.data.Event
 import com.jonasrosendo.instagramclone.data.Post
 import com.jonasrosendo.instagramclone.data.User
@@ -54,6 +56,12 @@ class InstagramViewModel @Inject constructor(
 
     private val _feedPosts = mutableStateOf<List<Post>>(listOf())
     val feedPosts: State<List<Post>> = _feedPosts
+
+    private val _commentsProgress = mutableStateOf(false)
+    val commentsProgress: State<Boolean> = _commentsProgress
+
+    private val _comments = mutableStateOf<List<Post>>(listOf())
+    val comments: State<List<Post>> = _comments
 
     private val _feedPostsProgress = mutableStateOf(false)
     val feedPostsProgress: State<Boolean> = _feedPostsProgress
@@ -265,6 +273,7 @@ class InstagramViewModel @Inject constructor(
         _popupNotification.value = Event("Logged out")
         _searchedPosts.value = emptyList()
         _feedPosts.value = emptyList()
+        _comments.value = emptyList()
     }
 
     fun onNewPost(uri: Uri, description: String, onPostSuccess: () -> Unit) {
@@ -442,6 +451,25 @@ class InstagramViewModel @Inject constructor(
                         }
                 }
             }
+        }
+    }
+
+    fun createComment(postId: String, text: String) {
+        _user.value?.username?.let { username ->
+            val commentId = UUID.randomUUID().toString()
+            val comment = Comment(
+                commentId = commentId,
+                postId = postId,
+                text = text,
+                time = System.currentTimeMillis()
+            )
+
+            firebaseStore.collection(COMMENTS).document(commentId).set(comment)
+                .addOnSuccessListener {
+                    // get existing comments
+                }.addOnFailureListener {
+                    handleException(it, "Not possible to add comment")
+                }
         }
     }
 }
