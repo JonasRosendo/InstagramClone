@@ -52,6 +52,12 @@ class InstagramViewModel @Inject constructor(
     private val _searchPostProgress = mutableStateOf(false)
     val searchPostProgress: State<Boolean> = _searchPostProgress
 
+    private val _feedPosts = mutableStateOf<List<Post>>(listOf())
+    val feedPosts: State<List<Post>> = _feedPosts
+
+    private val _feedPostsProgress = mutableStateOf(false)
+    val feedPostsProgress: State<Boolean> = _feedPostsProgress
+
     init {
         val currentUser = firebaseAuth.currentUser
         _signedIn.value = currentUser != null
@@ -176,6 +182,7 @@ class InstagramViewModel @Inject constructor(
                 this._user.value = user
                 _inProgress.value = false
                 refreshPosts()
+                getPersonalizedFeed()
             }.addOnFailureListener {
                 handleException(it, "Cannot retrieve user data.")
                 _inProgress.value = false
@@ -257,6 +264,7 @@ class InstagramViewModel @Inject constructor(
         _user.value = null
         _popupNotification.value = Event("Logged out")
         _searchedPosts.value = emptyList()
+        _feedPosts.value = emptyList()
     }
 
     fun onNewPost(uri: Uri, description: String, onPostSuccess: () -> Unit) {
@@ -375,5 +383,42 @@ class InstagramViewModel @Inject constructor(
                     handleException(it, "Not possible to follow user.")
                 }
         }
+    }
+
+    private fun getPersonalizedFeed() {
+        val following = _user.value?.following
+        if (!following.isNullOrEmpty()) {
+            _feedPostsProgress.value = true
+            firebaseStore.collection(POSTS).whereIn("userId", following).get()
+                .addOnSuccessListener {
+                    convertPosts(it, _feedPosts)
+                    if (_feedPosts.value.isEmpty()) {
+                        getGeneralFeed()
+                    } else {
+                        _feedPostsProgress.value = false
+                    }
+                }.addOnFailureListener {
+                    handleException(it, "Cannot get personalized feed")
+                    _feedPostsProgress.value = false
+                }
+        } else {
+            getGeneralFeed()
+        }
+    }
+
+    private fun getGeneralFeed() {
+        _feedPostsProgress.value = true
+        val currentTime = System.currentTimeMillis()
+        val oneDay = 24 * 60 * 60 * 1000L
+        val timeDifference = currentTime - oneDay
+
+        firebaseStore.collection(POSTS).whereGreaterThan("time", timeDifference).get()
+            .addOnSuccessListener {
+                convertPosts(documents = it, outState = _feedPosts)
+                _feedPostsProgress.value = false
+            }.addOnFailureListener {
+                handleException(it, "Not possible to get general feed")
+                _feedPostsProgress.value = false
+            }
     }
 }
