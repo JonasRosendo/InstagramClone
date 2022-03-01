@@ -66,6 +66,9 @@ class InstagramViewModel @Inject constructor(
     private val _feedPostsProgress = mutableStateOf(false)
     val feedPostsProgress: State<Boolean> = _feedPostsProgress
 
+    private val _followers = mutableStateOf(0)
+    val followers: State<Int> = _followers
+
     init {
         val currentUser = firebaseAuth.currentUser
         _signedIn.value = currentUser != null
@@ -191,6 +194,7 @@ class InstagramViewModel @Inject constructor(
                 _inProgress.value = false
                 refreshPosts()
                 getPersonalizedFeed()
+                getFollowers(uid = uid)
             }.addOnFailureListener {
                 handleException(it, "Cannot retrieve user data.")
                 _inProgress.value = false
@@ -495,6 +499,15 @@ class InstagramViewModel @Inject constructor(
             }.addOnFailureListener {
                 handleException(it, "Cannot retrieve comments")
                 _commentsProgress.value = false
+            }
+    }
+
+    private fun getFollowers(uid: String?) {
+        firebaseStore.collection(USERS).whereArrayContains("following", uid ?: "").get()
+            .addOnSuccessListener { documents ->
+                _followers.value = documents.size()
+            }.addOnFailureListener {
+                handleException(it, "Cannot retrieve number of followers")
             }
     }
 }

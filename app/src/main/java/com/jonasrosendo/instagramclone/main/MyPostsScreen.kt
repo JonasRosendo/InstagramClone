@@ -75,6 +75,7 @@ fun MyPostsScreen(navController: NavController, viewModel: InstagramViewModel) {
     val isLoading = viewModel.inProgress.value
     val postsLoading = viewModel.refreshPostsProgress.value
     val posts = viewModel.posts.value
+    val followers = viewModel.followers.value
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -88,21 +89,21 @@ fun MyPostsScreen(navController: NavController, viewModel: InstagramViewModel) {
                 }
 
                 Text(
-                    text = "15 \nposts",
+                    text = "${posts.size ?: 0} \nposts",
                     modifier = Modifier
                         .weight(1f)
                         .align(Alignment.CenterVertically),
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = "54 \nfollowers",
+                    text = "$followers \nfollowers",
                     modifier = Modifier
                         .weight(1f)
                         .align(Alignment.CenterVertically),
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = "93 \nfollowing",
+                    text = "${user?.following?.size ?: 0} \nfollowing",
                     modifier = Modifier
                         .weight(1f)
                         .align(Alignment.CenterVertically),
