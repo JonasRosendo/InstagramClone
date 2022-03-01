@@ -68,14 +68,20 @@ fun PostDetails(navController: NavController, viewModel: InstagramViewModel, pos
             Text(text = post.username ?: "")
             Text(text = ".", modifier = Modifier.padding(8.dp))
 
-            if (user?.userId != post.userId) {
-                Text(text = "Follow", color = Color.Blue, modifier = Modifier.clickable {
-                    //follow a user
-                })
+            when {
+                user?.userId == post.userId -> {}
+                user?.following?.contains(post.userId) == true -> {
+                    Text(text = "Following", color = Color.Gray, modifier = Modifier.clickable {
+                        post.userId?.let { viewModel.onFollowClick(it) }
+                    })
+                }
+                else -> {
+                    Text(text = "Follow", color = Color.Blue, modifier = Modifier.clickable {
+                        post.userId?.let { viewModel.onFollowClick(it) }
+                    })
+                }
             }
         }
-
-
     }
 
     Box {

@@ -256,6 +256,7 @@ class InstagramViewModel @Inject constructor(
         _signedIn.value = false
         _user.value = null
         _popupNotification.value = Event("Logged out")
+        _searchedPosts.value = emptyList()
     }
 
     fun onNewPost(uri: Uri, description: String, onPostSuccess: () -> Unit) {
@@ -350,6 +351,28 @@ class InstagramViewModel @Inject constructor(
                 }.addOnFailureListener {
                     handleException(it, "Cannot search posts")
                     _searchPostProgress.value = false
+                }
+        }
+    }
+
+    fun onFollowClick(userId: String) {
+        firebaseAuth.currentUser?.uid?.let { currentUserId ->
+            val following = arrayListOf<String>()
+            _user.value?.following?.let {
+                following.addAll(it)
+            }
+
+            if (following.contains(userId)) {
+                following.remove(userId)
+            } else {
+                following.add(userId)
+            }
+
+            firebaseStore.collection(USERS).document(currentUserId).update("following", following)
+                .addOnSuccessListener {
+                    getUserData(currentUserId)
+                }.addOnFailureListener {
+                    handleException(it, "Not possible to follow user.")
                 }
         }
     }

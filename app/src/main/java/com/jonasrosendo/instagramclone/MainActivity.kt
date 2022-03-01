@@ -44,39 +44,39 @@ class MainActivity : ComponentActivity() {
 @ExperimentalCoilApi
 @Composable
 fun InstagramApp() {
-    val vm = hiltViewModel<InstagramViewModel>()
+    val viewModel = hiltViewModel<InstagramViewModel>()
     val navController = rememberNavController()
 
-    NotificationMessage(viewModel = vm)
+    NotificationMessage(viewModel = viewModel)
     NavHost(navController = navController, startDestination = DestinationScreen.SignUp.route) {
         composable(DestinationScreen.SignUp.route) {
-            SignUpScreen(navController = navController, viewModel = vm)
+            SignUpScreen(navController = navController, viewModel = viewModel)
         }
 
         composable(DestinationScreen.SignIn.route) {
-            SignInScreen(navController = navController, viewModel = vm)
+            SignInScreen(navController = navController, viewModel = viewModel)
         }
 
         composable(DestinationScreen.Feed.route) {
-            FeedScreen(navController = navController, viewModel = vm)
+            FeedScreen(navController = navController, viewModel = viewModel)
         }
 
         composable(DestinationScreen.MyPosts.route) {
-            MyPostsScreen(navController = navController, viewModel = vm)
+            MyPostsScreen(navController = navController, viewModel = viewModel)
         }
 
         composable(DestinationScreen.Search.route) {
-            SearchScreen(navController = navController, viewModel = vm)
+            SearchScreen(navController = navController, viewModel = viewModel)
         }
 
         composable(DestinationScreen.Profile.route) {
-            ProfileScreen(navController = navController, viewModel = vm)
+            ProfileScreen(navController = navController, viewModel = viewModel)
         }
 
         composable(DestinationScreen.NewPost.route) { navBackStackEntry ->
             val imageUri = navBackStackEntry.arguments?.getString("imageUri")
             imageUri?.let {
-                NewPostScreen(navController = navController, viewModel = vm, encodedUri = it)
+                NewPostScreen(navController = navController, viewModel = viewModel, encodedUri = it)
             }
         }
 
@@ -85,7 +85,7 @@ fun InstagramApp() {
                 navController.previousBackStackEntry?.arguments?.getParcelable<Post>(Constants.POST)
 
             post?.let {
-                PostDetailsScreen(navController = navController, viewModel = vm, post = post)
+                PostDetailsScreen(navController = navController, viewModel = viewModel, post = post)
             }
         }
     }
