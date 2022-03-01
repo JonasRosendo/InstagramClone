@@ -421,4 +421,27 @@ class InstagramViewModel @Inject constructor(
                 _feedPostsProgress.value = false
             }
     }
+
+    fun onLikePost(post: Post) {
+        firebaseAuth.currentUser?.uid?.let { uid ->
+            post.likes?.let { likes ->
+                val newLikes = arrayListOf<String>()
+                if (likes.contains(uid)) {
+                    newLikes.addAll(likes.filter { uid != it })
+                } else {
+                    newLikes.addAll(likes)
+                    newLikes.add(uid)
+                }
+
+                post.postId?.let { postId ->
+                    firebaseStore.collection(POSTS).document(postId).update("likes", newLikes)
+                        .addOnSuccessListener {
+                            post.likes = newLikes
+                        }.addOnFailureListener {
+                            handleException(it, "Unable to like post")
+                        }
+                }
+            }
+        }
+    }
 }
