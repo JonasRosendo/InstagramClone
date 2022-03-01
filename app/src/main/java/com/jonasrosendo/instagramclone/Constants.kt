@@ -5,7 +5,8 @@ object Constants {
     const val USERNAME = "username"
     const val POSTS = "posts"
     const val POST = "POST"
-    const val COMMENTS = "COMMENTS"
+    const val COMMENTS = "comments"
+    const val POST_ID = "postId"
 }
 
 val fillerWords = listOf(

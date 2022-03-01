@@ -461,6 +461,7 @@ class InstagramViewModel @Inject constructor(
                 commentId = commentId,
                 postId = postId,
                 text = text,
+                username = username,
                 time = System.currentTimeMillis()
             )
 

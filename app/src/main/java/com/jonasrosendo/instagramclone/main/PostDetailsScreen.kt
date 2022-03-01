@@ -21,6 +21,8 @@ import coil.compose.rememberImagePainter
 import com.jonasrosendo.instagramclone.InstagramViewModel
 import com.jonasrosendo.instagramclone.R
 import com.jonasrosendo.instagramclone.data.Post
+import com.jonasrosendo.instagramclone.navigation.DestinationScreen
+import com.jonasrosendo.instagramclone.navigation.navigateTo
 
 @ExperimentalCoilApi
 @Composable
@@ -111,6 +113,16 @@ fun PostDetails(navController: NavController, viewModel: InstagramViewModel, pos
     }
 
     Row(modifier = Modifier.padding(8.dp)) {
-        Text(text = "10 comments", color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
+        Text(
+            text = "10 comments",
+            color = Color.Gray,
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .clickable {
+                    post.postId?.let {
+                        navController.navigate(DestinationScreen.Comments.createRoute(it))
+                    }
+                }
+        )
     }
 }

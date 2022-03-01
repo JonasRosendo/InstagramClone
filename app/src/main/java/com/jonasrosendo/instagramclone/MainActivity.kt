@@ -88,6 +88,18 @@ fun InstagramApp() {
                 PostDetailsScreen(navController = navController, viewModel = viewModel, post = post)
             }
         }
+
+        composable(DestinationScreen.Comments.route) { navBackStackEntry ->
+            val postId = navBackStackEntry.arguments?.getString(Constants.POST_ID)
+
+            postId?.let {
+                CommentsScreen(
+                    navController = navController,
+                    viewModel = viewModel,
+                    postId = it
+                )
+            }
+        }
     }
 }
 

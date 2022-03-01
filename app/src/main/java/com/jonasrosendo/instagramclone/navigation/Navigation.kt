@@ -15,6 +15,9 @@ sealed class DestinationScreen(val route: String) {
     }
 
     object PostDetails : DestinationScreen(POST_DETAILS)
+    object Comments : DestinationScreen("$COMMENTS/{postId}") {
+        fun createRoute(postId: String) = "$COMMENTS/$postId"
+    }
 
     companion object {
         private const val SIGNUP = "signup"
@@ -25,6 +28,7 @@ sealed class DestinationScreen(val route: String) {
         private const val PROFILE = "profile"
         private const val NEW_POST = "newpost"
         private const val POST_DETAILS = "postdetails"
+        private const val COMMENTS = "comments"
     }
 }
 
