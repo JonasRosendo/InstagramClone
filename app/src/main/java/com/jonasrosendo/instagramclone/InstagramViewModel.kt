@@ -488,10 +488,9 @@ class InstagramViewModel @Inject constructor(
                     newComments.add(comment)
                 }
 
-                val sortedComments = newComments.sortedByDescending { it.time }
+                val sortedComments = newComments.sortedBy { it.time }
                 _comments.value = sortedComments
                 _commentsProgress.value = false
-
 
             }.addOnFailureListener {
                 handleException(it, "Cannot retrieve comments")
